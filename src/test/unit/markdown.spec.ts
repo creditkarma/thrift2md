@@ -4,6 +4,7 @@ import {
     Blockquote,
     Header,
     Image,
+    List,
     MarkdownTypes,
     transformField,
 } from '../../main/markdown'
@@ -42,6 +43,30 @@ describe('When generating markdown for blockquote', () => {
 
     it('should have a string with a leading >', () => {
         expect(transformField(text)).to.equal(`> ${content}\n\n`)
+    })
+})
+
+describe('When generating markdown for order list', () => {
+    const text = List([content, content], MarkdownTypes.OrderedList)
+
+    it('should have a string with a leading number', () => {
+        expect(transformField(text)).to.contain(`1. ${content}\n\n`)
+    })
+
+    it('should have two items', () => {
+        expect(transformField(text).split(`1.`).length).to.equal(3)
+    })
+})
+
+describe('When generating markdown for unorder list', () => {
+    const text = List([content, content], MarkdownTypes.UnorderedList)
+
+    it('should have a string with a leading number', () => {
+        expect(transformField(text)).to.contain(`* ${content}\n\n`)
+    })
+
+    it('should have two items', () => {
+        expect(transformField(text).split(`*`).length).to.equal(3)
     })
 })
 
