@@ -52,7 +52,7 @@ export const blockquote = (text: string | string[]): IBlockQuote => ({
 })
 
 export const image = (source: string, title?: string, altText?: string) => ({
-    img: { source, title },
+    img: { source, title, altText },
     type: MarkdownTypes.Image,
 })
 
@@ -94,7 +94,7 @@ export const transformField = (fld: MarkdownNode): string => {
         HeaderLevel4: (_) => `#### ${_.h4}`,
         HeaderLevel5: (_) => `##### ${_.h5}`,
         HeaderLevel6: (_) => `###### ${_.h6}`,
-        Image: (_) => `![${_.img.altText}](${_.img.source} "${_.img.title}")`,
+        Image: (_) => `![${_.img.altText || ''}](${_.img.source} "${_.img.title || ''}")`,
         Paragraph: (node) => arrayToStr(node.p, (_) => `${_}`),
     }, fld)
     return result + '\n\n'

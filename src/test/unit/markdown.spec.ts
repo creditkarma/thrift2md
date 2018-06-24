@@ -3,6 +3,7 @@ import * as Lab from 'lab'
 import {
     blockquote,
     header,
+    image,
     MarkdownTypes,
     transformField,
 } from '../../main/markdown'
@@ -14,6 +15,7 @@ const it = lab.it
 const before = lab.before
 
 const content = 'Hello world'
+const url = 'https://imageix.io/ahd2i3hd'
 
 describe('When generating markdown for header1', () => {
     const head = header(content, MarkdownTypes.HeaderLevel1)
@@ -40,5 +42,18 @@ describe('When generating markdown for blockquote', () => {
 
     it('should have a string with a leading >', () => {
         expect(transformField(text)).to.equal(`> ${content}\n\n`)
+    })
+})
+
+describe('When generating markdown for image', () => {
+    const img = image(url)
+    const fullImg = image(url, content, content)
+
+    it('should have a string that contains the url in a [', () => {
+        expect(transformField(img)).to.equal(`![](${url} "")\n\n`)
+    })
+
+    it('should have a string that contains the url in a [', () => {
+        expect(transformField(fullImg)).to.equal(`![${content}](${url} "${content}")\n\n`)
     })
 })
