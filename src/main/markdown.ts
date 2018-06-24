@@ -5,6 +5,7 @@ export enum MarkdownTypes {
     HeaderLevel4 = 'h4',
     HeaderLevel5 = 'h5',
     HeaderLevel6 = 'h6',
+    Image = 'img',
     Paragraph = 'p',
     BlockQuote = 'blockquote',
 }
@@ -22,9 +23,10 @@ export interface IHeaderLevel6 extends IMarkdown { h6: string }
 
 export interface IParagraph extends IMarkdown { p: string | string[] }
 export interface IBlockQuote extends IMarkdown { blockquote: string | string[] }
+export interface IImage extends IMarkdown { img: { source: string, title?: string, altText?: string } }
 
 export type MarkdownNode = IHeaderLevel1 | IHeaderLevel2 | IHeaderLevel3 | IHeaderLevel4 |
-                        IHeaderLevel5 | IHeaderLevel6 | IParagraph | IBlockQuote
+                        IHeaderLevel5 | IHeaderLevel6 | IParagraph | IBlockQuote | IImage
 
 export const header = (text: string, type: MarkdownTypes):
     IHeaderLevel1 | IHeaderLevel2 | IHeaderLevel3 | IHeaderLevel4 | IHeaderLevel5 | IHeaderLevel6 => {
@@ -49,6 +51,11 @@ export const blockquote = (text: string | string[]): IBlockQuote => ({
     type: MarkdownTypes.BlockQuote,
 })
 
+export const image = (source: string, title?: string, altText?: string) => ({
+    img: { source, title },
+    type: MarkdownTypes.Image,
+})
+
 interface IMarkdownPattern<T> {
     BlockQuote: (_: IBlockQuote) => T
     HeaderLevel1: (_: IHeaderLevel1) => T
@@ -57,6 +64,7 @@ interface IMarkdownPattern<T> {
     HeaderLevel4: (_: IHeaderLevel4) => T
     HeaderLevel5: (_: IHeaderLevel5) => T
     HeaderLevel6: (_: IHeaderLevel6) => T
+    Image: (_: IImage) => T
     Paragraph: (_: IParagraph) => T
 }
 
@@ -68,6 +76,7 @@ function markdownNodeMatch<T>(p: IMarkdownPattern<T>, r: MarkdownNode): T {
         case MarkdownTypes.HeaderLevel4: return p.HeaderLevel4(r as IHeaderLevel4)
         case MarkdownTypes.HeaderLevel5: return p.HeaderLevel5(r as IHeaderLevel5)
         case MarkdownTypes.HeaderLevel6: return p.HeaderLevel6(r as IHeaderLevel6)
+        case MarkdownTypes.Image: return p.Image(r as IImage)
         case MarkdownTypes.Paragraph: return p.Paragraph(r as IParagraph)
         case MarkdownTypes.BlockQuote: return p.BlockQuote(r as IBlockQuote)
     }
@@ -77,14 +86,16 @@ const arrayToStr = (a: string | string[], transform: (_: string) => string): str
     Array.isArray(a) ? a.map(transform).join('') : transform(a)
 
 export const transformField = (fld: MarkdownNode): string => {
-    return markdownNodeMatch({
-        BlockQuote: (node) => arrayToStr(node.blockquote, (_) => `> ${_}\n\n`),
-        HeaderLevel1: (node) => `# ${node.h1}\n\n`,
-        HeaderLevel2: (node) => `## ${node.h2}\n\n`,
-        HeaderLevel3: (node) => `### ${node.h3}\n\n`,
-        HeaderLevel4: (node) => `#### ${node.h4}\n\n`,
-        HeaderLevel5: (node) => `##### ${node.h5}\n\n`,
-        HeaderLevel6: (node) => `###### ${node.h6}\n\n`,
-        Paragraph: (node) => arrayToStr(node.p, (_) => `${_}\n\n`),
+    const result = markdownNodeMatch({
+        BlockQuote: (node) => arrayToStr(node.blockquote, (_) => `> ${_}`),
+        HeaderLevel1: (_) => `# ${_.h1}`,
+        HeaderLevel2: (_) => `## ${_.h2}`,
+        HeaderLevel3: (_) => `### ${_.h3}`,
+        HeaderLevel4: (_) => `#### ${_.h4}`,
+        HeaderLevel5: (_) => `##### ${_.h5}`,
+        HeaderLevel6: (_) => `###### ${_.h6}`,
+        Image: (_) => `![${_.img.altText}](${_.img.source} "${_.img.title}")`,
+        Paragraph: (node) => arrayToStr(node.p, (_) => `${_}`),
     }, fld)
+    return result + '\n\n'
 }
