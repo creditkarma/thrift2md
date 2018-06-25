@@ -2,6 +2,7 @@ import { expect } from 'code'
 import * as Lab from 'lab'
 import {
     Blockquote,
+    CodeBlock,
     Header,
     Image,
     List,
@@ -48,25 +49,27 @@ describe('When generating markdown for blockquote', () => {
 
 describe('When generating markdown for order list', () => {
     const text = List([content, content], MarkdownTypes.OrderedList)
+    const markdown = transformField(text)
 
     it('should have a string with a leading number', () => {
-        expect(transformField(text)).to.contain(`1. ${content}\n\n`)
+        expect(markdown).to.contain(`1. ${content}\n\n`)
     })
 
     it('should have two items', () => {
-        expect(transformField(text).split(`1.`).length).to.equal(3)
+        expect(markdown.split(`\n\n`).length).to.equal(3)
     })
 })
 
 describe('When generating markdown for unorder list', () => {
     const text = List([content, content], MarkdownTypes.UnorderedList)
+    const markdown = transformField(text)
 
     it('should have a string with a leading number', () => {
-        expect(transformField(text)).to.contain(`* ${content}\n\n`)
+        expect(markdown).to.contain(`* ${content}\n\n`)
     })
 
     it('should have two items', () => {
-        expect(transformField(text).split(`*`).length).to.equal(3)
+        expect(markdown.split(`\n\n`).length).to.equal(3)
     })
 })
 
@@ -80,5 +83,18 @@ describe('When generating markdown for image', () => {
 
     it('should have a string that contains the url in a [', () => {
         expect(transformField(fullImg)).to.equal(`![${content}](${url} "${content}")\n\n`)
+    })
+})
+
+describe('When generating markdown for code block', () => {
+    const block = CodeBlock('typescript', [content, content])
+    const markdown = transformField(block)
+
+    it('should have a string with the language indicator', () => {
+        expect(markdown).to.contain('```typescript\n')
+    })
+
+    it('should have four items', () => {
+        expect(markdown.split('\n').length).to.equal(5)
     })
 })
