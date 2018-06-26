@@ -100,7 +100,7 @@ describe('When generating markdown for code block', () => {
     })
 })
 
-describe('When generating markdown for table', () => {
+describe('When generating markdown for a table', () => {
     const table = Table(['col 1', 'col 2', 'col 3'], [[content, content], [content, content]])
     const markdown = transformField(table)
 
