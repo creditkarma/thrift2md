@@ -7,6 +7,7 @@ import {
     Image,
     List,
     MarkdownTypes,
+    Table,
     transformField,
 } from '../../main/markdown'
 
@@ -94,7 +95,24 @@ describe('When generating markdown for code block', () => {
         expect(markdown).to.contain('```typescript\n')
     })
 
-    it('should have four items', () => {
+    it('should have four lines', () => {
         expect(markdown.split('\n').length).to.equal(5)
+    })
+})
+
+describe('When generating markdown for table', () => {
+    const table = Table(['col 1', 'col 2', 'col 3'], [[content, content], [content, content]])
+    const markdown = transformField(table)
+
+    it('should have a string with the header indicator', () => {
+        expect(markdown).to.contain('col 1 | col 2 | col 3')
+    })
+
+    it('should have a string with row data', () => {
+        expect(markdown).to.contain(`${content} | ${content} |`)
+    })
+
+    it('should have four lines', () => {
+        expect(markdown.split('\n').length).to.equal(6)
     })
 })

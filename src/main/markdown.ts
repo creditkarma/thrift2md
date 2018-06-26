@@ -11,6 +11,7 @@ export enum MarkdownTypes {
     UnorderedList,
     OrderedList,
     CodeBlock,
+    Table,
 }
 
 export interface IMarkdown {
@@ -24,8 +25,9 @@ export interface IBlockQuote extends IMarkdown { blockquote: string | string[] }
 export interface IImage extends IMarkdown { img: { source: string, title?: string, altText?: string } }
 export interface IList extends IMarkdown { items: string[] }
 export interface ICodeBlock extends IMarkdown { code: {language: string, lines: string | string[]}}
+export interface ITable extends IMarkdown { table: { headers: string[], rows: string[][]}}
 
-export type MarkdownNode = IHeaderLevel | IParagraph | IBlockQuote | IImage | IList | ICodeBlock
+export type MarkdownNode = IHeaderLevel | IParagraph | IBlockQuote | IImage | IList | ICodeBlock | ITable
 
 export type HeaderTypes = MarkdownTypes.HeaderLevel1 | MarkdownTypes.HeaderLevel2 | MarkdownTypes.HeaderLevel3 |
                         MarkdownTypes.HeaderLevel4 | MarkdownTypes.HeaderLevel5 | MarkdownTypes.HeaderLevel6
@@ -62,6 +64,11 @@ export const List = (items: string[], type: ListType): IList => ({
     type,
 })
 
+export const Table = (headers: string[], rows: string[][]) => ({
+    table: { headers, rows },
+    type: MarkdownTypes.Table,
+})
+
 interface IMarkdownPattern<T> {
     BlockQuote: (_: IBlockQuote) => T
     HeaderLevel1: (_: IHeaderLevel) => T
@@ -75,6 +82,7 @@ interface IMarkdownPattern<T> {
     UnorderedList: (_: IList) => T
     OrderedList: (_: IList) => T
     CodeBlock: (_: ICodeBlock) => T
+    Table: (_: ITable) => T
 }
 
 function markdownNodeMatch<T>(p: IMarkdownPattern<T>, r: MarkdownNode): T {
@@ -91,6 +99,7 @@ function markdownNodeMatch<T>(p: IMarkdownPattern<T>, r: MarkdownNode): T {
         case MarkdownTypes.UnorderedList: return p.UnorderedList(r as IList)
         case MarkdownTypes.OrderedList: return p.OrderedList(r as IList)
         case MarkdownTypes.CodeBlock: return p.CodeBlock(r as ICodeBlock)
+        case MarkdownTypes.Table: return p.Table(r as ITable)
     }
 }
 
@@ -106,7 +115,13 @@ export const transformField = (fld: MarkdownNode): string => {
     ].join('\n')
 
     const imageTransform = (node: IImage): string =>
-        `![${node.img.altText || ''}](${node.img.source} "${node.img.title || ''}")\n\n`
+        `![${node.img.altText || ''}](${node.img.source} "${node.img.title || ''}")`
+
+    const tableTransform = (node: ITable): string => [
+        node.table.headers.reduce((prev, cur) => prev + ` ${cur} |`, ''),
+        node.table.headers.reduce((prev) => prev + ` --- |`, ''),
+        ...node.table.rows.map((row) => row.reduce((prev, cur) => prev + ` ${cur} |`, '')),
+    ].join('\n')
 
     return markdownNodeMatch({
         BlockQuote: (node) => arrayToStr(node.blockquote, (_) => `> ${_}\n\n`),
@@ -117,9 +132,10 @@ export const transformField = (fld: MarkdownNode): string => {
         HeaderLevel4: (node) => `#### ${node.header}\n\n`,
         HeaderLevel5: (node) => `##### ${node.header}\n\n`,
         HeaderLevel6: (node) => `###### ${node.header}\n\n`,
-        Image: (node) => imageTransform(node),
+        Image: (node) => imageTransform(node) + '\n\n',
         OrderedList: (node) => arrayToStr(node.items, (_) => `1. ${_}\n\n`),
         Paragraph: (node) => arrayToStr(node.p, (_) => `${_}\n\n`),
+        Table: (node) => tableTransform(node) + '\n\n',
         UnorderedList: (node) => arrayToStr(node.items, (_) => `* ${_}\n\n`),
     }, fld)
 }
