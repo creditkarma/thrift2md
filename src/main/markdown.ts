@@ -103,7 +103,7 @@ function markdownNodeMatch<T>(p: IMarkdownPattern<T>, r: MarkdownNode): T {
     }
 }
 
-export const transformField = (fld: MarkdownNode): string => {
+export function transformField(fld: MarkdownNode): string {
 
     const arrayToStr = (a: string | string[], transform: (_: string) => string): string =>
         Array.isArray(a) ? a.reduce((prev, cur) => prev + transform(cur), '') : transform(a)
@@ -138,4 +138,12 @@ export const transformField = (fld: MarkdownNode): string => {
         Table: (node) => tableTransform(node) + '\n\n',
         UnorderedList: (node) => arrayToStr(node.items, (_) => `* ${_}\n\n`),
     }, fld)
+}
+
+export function transformDoc(nodes: MarkdownNode[]): string {
+    const flatten = (list: MarkdownNode[]): MarkdownNode[] => list.reduce(
+        (a: MarkdownNode[], b) => a.concat(Array.isArray(b) ? flatten(b as MarkdownNode[]) : b), [],
+    )
+
+    return flatten(nodes).map(transformField).join('')
 }

@@ -8,6 +8,7 @@ import {
     List,
     MarkdownTypes,
     Table,
+    transformDoc,
     transformField,
 } from '../../main/markdown'
 
@@ -103,6 +104,27 @@ describe('When generating markdown for code block', () => {
 describe('When generating markdown for a table', () => {
     const table = Table(['col 1', 'col 2', 'col 3'], [[content, content], [content, content]])
     const markdown = transformField(table)
+
+    it('should have a string with the header indicator', () => {
+        expect(markdown).to.contain('col 1 | col 2 | col 3')
+    })
+
+    it('should have a string with row data', () => {
+        expect(markdown).to.contain(`${content} | ${content} |`)
+    })
+
+    it('should have four lines', () => {
+        expect(markdown.split('\n').length).to.equal(6)
+    })
+})
+
+describe('When generating markdown for a document', () => {
+    const doc = [
+        Header(content, MarkdownTypes.HeaderLevel1),
+        Header(content, MarkdownTypes.HeaderLevel2),
+        Table(['col 1', 'col 2', 'col 3'], [[content, content], [content, content]]),
+    ]
+    const markdown = transformDoc(doc)
 
     it('should have a string with the header indicator', () => {
         expect(markdown).to.contain('col 1 | col 2 | col 3')
