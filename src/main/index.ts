@@ -8,6 +8,8 @@ import {
 } from '@creditkarma/thrift-parser'
 
 import {
+    transformConstants,
+    transformEnums,
     transformModule,
     transformServices,
     transformStructs,
@@ -37,6 +39,8 @@ export const transformDoc = (fileName: string) => (doc: ThriftDocument | ThriftE
         const transform: ThriftMarkdown = [
             transformModule(fileName, doc),
             transformTypeDefs(doc),
+            transformConstants(doc),
+            transformEnums(doc),         
             transformStructs(doc),
             transformServices(doc),
         ]

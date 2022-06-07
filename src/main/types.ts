@@ -20,10 +20,11 @@ export interface IHeaderOne { h1: string }
 export interface IHeaderTwo { h2: string }
 export interface IHeaderThree { h3: string }
 export interface IBlockQuote { blockquote: string }
+export interface ICodeBlock { code: { content: string } }
 export interface ITable {
     table: {
         headers: string[],
-        rows: StructFieldRow[],
+        rows: StructFieldRow[] | EnumMemberRow[] | ConstantsMemberRow[],
     }
 }
 
@@ -36,7 +37,7 @@ FloatLiteral | ExponentialLiteral
 export type DocSection = NamespaceDefinition | ServiceDefinition
 
 export type SectionType = SyntaxType.NamespaceDefinition | SyntaxType.ServiceDefinition |
-SyntaxType.StructDefinition | SyntaxType.TypedefDefinition
+SyntaxType.StructDefinition | SyntaxType.TypedefDefinition | SyntaxType.EnumDefinition | SyntaxType.ConstDefinition
 
 /**
  * Transform Types
@@ -45,11 +46,13 @@ SyntaxType.StructDefinition | SyntaxType.TypedefDefinition
 export type ThriftMarkdown = [
     ModuleSection,
     TypeDefSection,
+    ConstantsSection,
+    EnumSection, 
     StructSection,
     ServiceSection
 ]
 
-export type ModuleSection = [IHeaderOne, IBlockQuote[]]
+export type ModuleSection = [IHeaderOne, IBlockQuote[], string]
 
 export type TypedDefinitionTable = [IHeaderThree, IBlockQuote]
 export type TypeDefSection = [IHeaderTwo, TypedDefinitionTable[]]
@@ -58,7 +61,7 @@ export type FunctionSection = [IHeaderFour, IBlockQuote]
 export type ServiceDefintionSection = [IHeaderThree, FunctionSection[]]
 export type ServiceSection = [IHeaderTwo, ServiceDefintionSection[]]
 
-export type StructDefinitionTable = [IHeaderThree, ITable]
+export type StructDefinitionTable = [IHeaderThree, ICodeBlock, ITable]
 export type StructSection = [IHeaderTwo, StructDefinitionTable[]]
 export type StructFieldRow = [
     number | null,
@@ -66,6 +69,22 @@ export type StructFieldRow = [
     string,
     string | string[],
     string | null,
+    string
+]
+
+export type EnumDefinitionTable = [IHeaderThree, ICodeBlock, ITable]
+export type EnumSection = [IHeaderTwo, EnumDefinitionTable[]]
+export type EnumMemberRow = [
+    string,
+    string | string[]
+]
+
+export type ConstantsSection = [IHeaderTwo, ConstantsDefinitionTable]
+export type ConstantsDefinitionTable = ITable
+export type ConstantsMemberRow = [
+    string,
+    string,
+    string | string[],
     string
 ]
 
