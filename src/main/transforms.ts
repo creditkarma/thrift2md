@@ -191,6 +191,10 @@ const cIsSection = (filter: SectionType) => (stmt: ThriftStatement) => isSection
 const typedefDefinitionTable = (def: TypedefDefinition): TypedDefinitionTable => [{
     h3: def.name.value,
 }, {
+    code: {
+        content: def.comments ? extractComments(def.comments, false) : ''
+    }
+}, {
     blockquote: `${transformField(def.definitionType)} ${def.name.value}`,
 }]
 

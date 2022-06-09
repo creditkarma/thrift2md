@@ -54,7 +54,7 @@ export type ThriftMarkdown = [
 
 export type ModuleSection = [IHeaderOne, IBlockQuote[], string]
 
-export type TypedDefinitionTable = [IHeaderThree, IBlockQuote]
+export type TypedDefinitionTable = [IHeaderThree, ICodeBlock, IBlockQuote]
 export type TypeDefSection = [IHeaderTwo, TypedDefinitionTable[]]
 
 export type FunctionSection = [IHeaderFour, IBlockQuote]
