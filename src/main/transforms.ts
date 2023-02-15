@@ -169,7 +169,7 @@ const transformConst = (fld: ConstValue) => constTransform(
     (z) => `[${z.value}](#${z.value})`,
 )
 
-function extractComments(entityComments: Comment[], useHTMLEntities: boolean) {
+function extractComments(entityComments: Comment[], useSpaceForLineTerminators: boolean) {
     var codeComments = "";
     entityComments.forEach(element => {
         if(element.type == SyntaxType.CommentBlock) {
@@ -179,7 +179,7 @@ function extractComments(entityComments: Comment[], useHTMLEntities: boolean) {
         }
         // ignore any IDL '#' comments: SyntaxType.CommentLine
     });
-    return useHTMLEntities ? codeComments.replace(/(\r\n|\n|\r)/gm, '<br/>') : codeComments;
+    return useSpaceForLineTerminators ? codeComments.replace(/(\r\n|\n|\r)/gm, ' ') : codeComments;
 }
 
 const isSection = (filter: SectionType, stmt: ThriftStatement) => stmt.type === filter
