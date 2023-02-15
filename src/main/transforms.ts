@@ -179,7 +179,7 @@ function extractComments(entityComments: Comment[], useHTMLEntities: boolean) {
         }
         // ignore any IDL '#' comments: SyntaxType.CommentLine
     });
-    return useHTMLEntities ? codeComments.replace(/[\n\r]/g, '<br/>') : codeComments;
+    return useHTMLEntities ? codeComments.replace(/(\r\n|\n|\r)/gm, '<br/>') : codeComments;
 }
 
 const isSection = (filter: SectionType, stmt: ThriftStatement) => stmt.type === filter
@@ -192,7 +192,7 @@ const typedefDefinitionTable = (def: TypedefDefinition): TypedDefinitionTable =>
     h3: def.name.value,
 }, {
     code: {
-        content: def.comments ? extractComments(def.comments, false) : ''
+        content: def.comments ? extractComments(def.comments, true) : ''
     }
 }, {
     blockquote: `${transformField(def.definitionType)} ${def.name.value}`,
@@ -251,7 +251,7 @@ const enumDefinitionTable = (def: EnumDefinition): EnumDefinitionTable => [{
         h3: def.name.value,
     }, {
         code: {
-            content: def.comments ? extractComments(def.comments, false) : ''
+            content: def.comments ? extractComments(def.comments, true) : ''
         }
     }, {
         table: {
@@ -284,7 +284,7 @@ const structDefinitionTable = (def: StructDefinition): StructDefinitionTable => 
         h3: def.name.value,
     }, {
         code: {
-                content: def.comments ? extractComments(def.comments, false) : ''
+                content: def.comments ? extractComments(def.comments, true) : ''
         }
     }, {
         table: {
